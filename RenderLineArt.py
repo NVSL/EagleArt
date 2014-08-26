@@ -1,18 +1,21 @@
 import png
 import StringIO
 import time
+from lxml import etree as ET
 
-def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight):
+def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight, layer, lineWidth):
+
+    root = ET.Element("package", name=name)
+
     rowMultiplier = 1
-    xPixelSize = (1.0/inputDotsPerInch) * 1000 # file format requires mils
-    yPixelSize = (1.0/inputDotsPerInch) * 1000 # file format requires mils
+    xPixelSize = (1.0/inputDotsPerInch) * 25.4 # file format requires mm
+    yPixelSize = (1.0/inputDotsPerInch) * 25.4 # file format requires mm
     if yPixelSize > maxBoxHeight:
         rowMultiplier = int(math.ceil(yPixelSize/maxBoxHeight))
         yPixelSize = yPixelSize/rowMultiplier
 
     r = png.Reader(f)
     (width, height, pixels, crap) = r.asRGBA()
-
 
     b = StringIO.StringIO()
 
@@ -38,24 +41,15 @@ def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight):
                         left =    startx * xPixelSize
                         right =   (x-1)*xPixelSize + xPixelSize
 
-                        b.write("CLOSED 5 1 1 -1\r\n")
-                        b.write("%d   %d\r\n" % (left, top))
-                        b.write("%d   %d\r\n" % (right, top))
-                        b.write("%d   %d\r\n" % (right, bottom))
-                        b.write("%d   %d\r\n" % (left, bottom))
-                        b.write("%d   %d\r\n" % (left, top))
-                        c = c + 1
+                        poly = ET.SubElement(root, "polygon", layer=layer, width=lineWidth)
+                        ET.SubElement(poly, "vertex", x=str(left), y=str(top))
+                        ET.SubElement(poly, "vertex", x=str(right), y=str(top))
+                        ET.SubElement(poly, "vertex", x=str(right), y=str(bottom))
+                        ET.SubElement(poly, "vertex", x=str(left), y=str(bottom))
+                        ET.SubElement(poly, "vertex", x=str(left), y=str(top))
                 inBlack = False
 
             x = x + 1;
         y = y - 1;
 
-    out = StringIO.StringIO()
-    out.write("*PADS-LIBRARY-LINE-ITEMS-V9*\r\n")
-    out.write("\r\n") 
-    out.write("%s LINES    I -16705 -16140 %d 0\r\n" % (name, c))
-    out.write("TIMESTAMP %s\r\n" % time.strftime("%Y:%m:%d:%H:%M:%S")) 
-    out.write(b.getvalue())
-    out.write("""\r\n*END*\r\n""")
-
-    return out.getvalue()
+    return root
