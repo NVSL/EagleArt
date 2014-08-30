@@ -20,12 +20,17 @@ parser.add_argument("--package", required=False, type=str, nargs=1, dest='packag
 parser.add_argument("--force", action="store_true", help="Replace current package")
 parser.add_argument("--width", required=False, type=str, nargs=1, dest='width', help="Line width in mm")
 parser.add_argument("--layer", required=False, type=str, nargs=1, dest='layer', help="Layer name")
+parser.add_argument("--dpi", required=False, type=float, nargs=1, dest='dpi', help="Input dpi")
 args = parser.parse_args()
 
 inFile = args.pngFile[0]
 outFile = args.lbrFile[0]
 
-inputDotsPerInch = 288.0
+if args.dpi is None:
+    inputDotsPerInch = 288.0
+else:
+    inputDotsPerInch = float(args.dpi[0])
+
 threshold = 128
 
 maxBoxHeight = 0.1
@@ -51,8 +56,8 @@ if args.width is None:
 else:
     width = args.width[0]
 
-package = RenderLineArt(input, name.upper(), inputDotsPerInch, threshold, maxBoxHeight, str(layers.nameToNumber(layer)), width);
-
+package = ET.Element("package", name=name)
+RenderLineArt(input, name.upper(), inputDotsPerInch, threshold, maxBoxHeight, str(layers.nameToNumber(layer)), width, mode="brd", state=package)
 
 try:
     lbr.addPackage(package)
