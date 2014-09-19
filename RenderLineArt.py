@@ -5,7 +5,7 @@ from lxml import etree as ET
 import math
 import DXFUtil
 
-def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight, layer, lineWidth, state, mode="BRD"):
+def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight, layer, lineWidth, state, mode):
 
 #    root = ET.Element("package", name=name)
 
@@ -19,6 +19,9 @@ def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight, layer, lin
     r = png.Reader(f)
     (width, height, pixels, crap) = r.asRGBA()
 
+    xOffset = -(width*xPixelSize)/2.0
+    yOffset = (height*yPixelSize)/2.0
+
     b = StringIO.StringIO()
 
     c = 0
@@ -29,43 +32,46 @@ def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight, layer, lin
         x = 0
         inBlack = False
         row = list(row)+[255,255,255,255] # This ensures that the we don't loose the right edge
-        for p in row[::4]:
+        for p in row[3::4]:
 
-            if p < threshold:
+            if p > threshold:
                 if not inBlack:
                     startx = x;
                 inBlack = True;
             else:
                 if inBlack:
                     for i in range(0, rowMultiplier):
-                        top =     (y*rowMultiplier*yPixelSize + i*yPixelSize)
+                        top =     (y*rowMultiplier*yPixelSize + i*yPixelSize) + yOffset
                         bottom =  top + yPixelSize
-                        left =    startx * xPixelSize
-                        right =   (x-1)*xPixelSize + xPixelSize
+                        left =    startx * xPixelSize + xOffset
+                        right =   (x-1)*xPixelSize + xPixelSize + xOffset
 
                         t = top
                         top = -bottom
                         bottom = -t
                         
-                        if mode == "dxf":
+                        if mode.upper() == "DXF":
                             DXFUtil.addLine(state, [left,top], [right,top], "layer 1", handle)
                             DXFUtil.addLine(state, [right,top], [right,bottom], "layer 1", handle)
                             DXFUtil.addLine(state, [right,bottom], [left,bottom], "layer 1", handle)
                             DXFUtil.addLine(state, [left,bottom], [left,top], "layer 1", handle)
                             handle = handle + 1
-                        elif mode == "svg":
+                        elif mode.upper() == "DXFSVG":
                             state.add(state.line((left,top),(right,top), stroke="black", stroke_width="0.01mm"))
                             state.add(state.line((right,top),(right,bottom), stroke="black", stroke_width="0.01mm"))
                             state.add(state.line((right,bottom),(left,bottom), stroke="black", stroke_width="0.01mm"))
                             state.add(state.line((left,bottom),(left,top), stroke="black", stroke_width="0.01mm"))
                             #state.add(state.rect((left,top),(right-left,bottom-top), stroke="black", stroke_width="0.01mm"))
-                        elif mode == "brd":
+                        elif mode.upper() == "BRD":
                             poly = ET.SubElement(state, "polygon", layer=layer, width=lineWidth)
                             ET.SubElement(poly, "vertex", x=str(left), y=str(top))
                             ET.SubElement(poly, "vertex", x=str(right), y=str(top))
                             ET.SubElement(poly, "vertex", x=str(right), y=str(bottom))
                             ET.SubElement(poly, "vertex", x=str(left), y=str(bottom))
                             ET.SubElement(poly, "vertex", x=str(left), y=str(top))
+                        else:
+                            print "unknown mode = " + mode
+                            assert(0)
 
                 inBlack = False
 
