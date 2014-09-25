@@ -51,10 +51,10 @@ def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight, layer, lin
                         bottom = -t
                         
                         if mode.upper() == "DXF":
-                            DXFUtil.addLine(state, [left,top], [right,top], "layer 1", handle)
-                            DXFUtil.addLine(state, [right,top], [right,bottom], "layer 1", handle)
-                            DXFUtil.addLine(state, [right,bottom], [left,bottom], "layer 1", handle)
-                            DXFUtil.addLine(state, [left,bottom], [left,top], "layer 1", handle)
+                            DXFUtil.addLine(state, [left,top], [right,top], layer, handle)
+                            DXFUtil.addLine(state, [right,top], [right,bottom], layer, handle)
+                            DXFUtil.addLine(state, [right,bottom], [left,bottom], layer, handle)
+                            DXFUtil.addLine(state, [left,bottom], [left,top], layer, handle)
                             handle = handle + 1
                         elif mode.upper() == "DXFSVG":
                             state.add(state.line((left,top),(right,top), stroke="black", stroke_width="0.01mm"))
