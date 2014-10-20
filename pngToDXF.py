@@ -18,13 +18,13 @@ import svgwrite
 import GadgetronConfig as gtron
 
 
-def pngToDXF(inputpng, mode, output, inputDotsPerInch, threshold, maxBoxHeight, width, layer):
+def pngToDXF(inputpng, mode, output, inputDotsPerInch, threshold, maxBoxHeight, width, layer, mirrored):
     if mode.upper() == "DXF":
         buffer = StringIO.StringIO()
-        RenderLineArt(inputpng, None, inputDotsPerInch, threshold, maxBoxHeight, layer, width, output, mode)
+        RenderLineArt(inputpng, None, inputDotsPerInch, threshold, maxBoxHeight, layer, width, output, mode,mirrored)
         output.write(buffer.getvalue())
     elif mode.upper() == "DXFSVG":
-        RenderLineArt(inputpng, None, inputDotsPerInch, threshold, maxBoxHeight, layer, width, output,mode)
+        RenderLineArt(inputpng, None, inputDotsPerInch, threshold, maxBoxHeight, layer, width, output,mode,mirrored)
     else:
         print "unknown mode = " + mode
         assert(0)

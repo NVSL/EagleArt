@@ -5,7 +5,7 @@ from lxml import etree as ET
 import math
 import DXFUtil
 
-def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight, layer, lineWidth, state, mode):
+def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight, layer, lineWidth, state, mode,mirrored):
 
 #    root = ET.Element("package", name=name)
 
@@ -45,6 +45,10 @@ def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight, layer, lin
                         bottom =  top + yPixelSize
                         left =    startx * xPixelSize + xOffset
                         right =   (x-1)*xPixelSize + xPixelSize + xOffset
+
+                        if mirrored:
+                            left = -left
+                            right = -right
 
                         t = top
                         top = -bottom
