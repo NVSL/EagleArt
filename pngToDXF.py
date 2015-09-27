@@ -10,9 +10,9 @@ import re
 from RenderLineArt import RenderLineArt
 import argparse
 from lxml import etree as ET
-from EagleLibrary import *
-from EagleLayers import * 
-import DXFTemplate
+from EagleUtil.EagleLibrary import *
+from EagleUtil.EagleLayers import * 
+import GCAM.DXFTemplate
 import StringIO
 import svgwrite
 import GadgetronConfig as gtron
