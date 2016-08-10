@@ -1,9 +1,10 @@
-import png
 import StringIO
-import time
-from lxml import etree as ET
-import math
+
 import GCAM.DXFUtil
+from lxml import etree as ET
+
+import png
+
 
 def RenderLineArt(f, name, inputDotsPerInch, threshold, maxBoxHeight, layer, lineWidth, state, mode,mirrored):
 
